@@ -1,4 +1,294 @@
 # Calculadora
 Simulador de calculadora
+<!DOCTYPE html><html lang="pt-BR"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        .register-button {
+            background-color: #28a745;
+            color: white;
+        }
+        .calculate-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .calculator {
+            display: none;
+            margin-top: 20px;
+        }
+        .calculator input {
+            width: 100%;
+            height: 50px;
+            text-align: right;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .calculator button {
+            width: 23%;
+            height: 50px;
+            font-size: 18px;
+        }
+        .button-row {
+            display: flex;
+            justify-content: space-between;
+        }
+        .user-list {
+            display: none;
+            margin-top: 20px;
+        }
+        .edit-delete {
+            display: none;
+            margin-top: 20px;
+        }
+        .small-text {
+            font-size: 12px;
+            color: #888;
+        }
+        .log {
+            margin-top: 20px;
+        }
+    </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.bd4eeeb8e8e02052ee92.js"></script></head>
+<body>
+    <div id="registrationContainer" class="container">
+        <h2>Calculadora</h2>
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="username">Usuário:</label>
+                <input type="text" id="username" name="username" required="">
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" name="password" required="">
+                <small class="small-text">A senha deve conter pelo menos uma letra, um número e um caractere especial.</small>
+            </div>
+            <button type="submit" class="register-button">Adicionar Usuário</button>
+            <button id="showUsersButton" type="button" class="register-button">Ver Usuários Cadastrados</button>
+        </form>
+        <button id="calculateButton" class="calculate-button">Calcular</button>
+    </div>
 
+    <div id="calculatorContainer" class="container calculator">
+        <h2>Calculadora Virtual</h2>
+        <input type="text" id="result" disabled="">
+        <div class="button-row">
+            <button onclick="appendToResult('1')">1</button>
+            <button onclick="appendToResult('2')">2</button>
+            <button onclick="appendToResult('3')">3</button>
+            <button onclick="appendToResult('+')">+</button>
+        </div>
+        <div class="button-row">
+            <button onclick="appendToResult('4')">4</button>
+            <button onclick="appendToResult('5')">5</button>
+            <button onclick="appendToResult('6')">6</button>
+            <button onclick="appendToResult('-')">-</button>
+        </div>
+        <div class="button-row">
+            <button onclick="appendToResult('7')">7</button>
+            <button onclick="appendToResult('8')">8</button>
+            <button onclick="appendToResult('9')">9</button>
+            <button onclick="appendToResult('*')">*</button>
+        </div>
+        <div class="button-row">
+            <button onclick="clearResult()">C</button>
+            <button onclick="appendToResult('0')">0</button>
+            <button onclick="calculateResult()">=</button>
+            <button onclick="appendToResult('/')">/</button>
+        </div>
+        <button id="backButton">Voltar</button>
+        <div class="log" id="calcLog"></div>
+    </div>
+
+    <div id="userListContainer" class="container user-list">
+        <h2>Usuários Cadastrados</h2>
+        <ul id="userList"></ul>
+        <button id="editDeleteButton">Editar/Deletar Usuário</button>
+        <button id="backToRegistrationButton">Voltar</button>
+    </div>
+
+    <div id="editDeleteContainer" class="container edit-delete">
+        <h2>Editar/Deletar Usuário</h2>
+        <label for="editUsername">Usuário:</label>
+        <input type="text" id="editUsername" required="">
+        <button id="deleteUserButton">Deletar Usuário</button>
+        <button id="saveChangesButton">Salvar Alterações</button>
+        <button id="backToUserListButton">Voltar</button>
+    </div>
+
+    <script>
+        const registrationForm = document.getElementById('registrationForm');
+        const calculateButton = document.getElementById('calculateButton');
+        const backButton = document.getElementById('backButton');
+        const showUsersButton = document.getElementById('showUsersButton');
+        const calculatorContainer = document.getElementById('calculatorContainer');
+        const userListContainer = document.getElementById('userListContainer');
+        const userList = document.getElementById('userList');
+        const editDeleteContainer = document.getElementById('editDeleteContainer');
+        const calcLog = document.getElementById('calcLog');
+
+        let users = [];
+
+        registrationForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!/^[a-zA-Z0-9]{1,10}$/.test(username)) {
+                alert('O nome de usuário deve ter até 10 caracteres e não pode conter caracteres especiais.');
+                return;
+            }
+            if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+                alert('Usuário já cadastrado.');
+                return;
+            }
+            if (!password) {
+                alert('A senha deve ser preenchida.');
+                return;
+            }
+            if (password.length > 12 || !/[a-zA-Z]/.test(password) || !/\d/.test(password) || !/[!@#$%^&*]/.test(password)) {
+                alert('A senha deve conter pelo menos uma letra, um número e um caractere especial.');
+                return;
+            }
+            users.push({ username, password, calculations: [] });
+            alert('Usuário cadastrado com sucesso!');
+            this.reset();
+        });
+
+        calculateButton.addEventListener('click', function() {
+            const username = prompt("Digite seu nome de usuário:");
+            const password = prompt("Digite sua senha:");
+
+            const user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+            if (user) {
+                document.getElementById('registrationContainer').style.display = 'none';
+                calculatorContainer.style.display = 'block';
+            } else {
+                alert('Usuário ou senha incorretos.');
+            }
+        });
+
+        backButton.addEventListener('click', function() {
+            calculatorContainer.style.display = 'none';
+            document.getElementById('registrationContainer').style.display = 'block';
+        });
+
+        showUsersButton.addEventListener('click', function() {
+            userList.innerHTML = '';
+            users.forEach(user => {
+                const li = document.createElement('li');
+                li.textContent = user.username;
+                userList.appendChild(li);
+            });
+            userListContainer.style.display = 'block';
+            document.getElementById('registrationContainer').style.display = 'none';
+        });
+
+        document.getElementById('backToRegistrationButton').addEventListener('click', function() {
+            userListContainer.style.display = 'none';
+            document.getElementById('registrationContainer').style.display = 'block';
+        });
+
+        document.getElementById('editDeleteButton').addEventListener('click', function() {
+            editDeleteContainer.style.display = 'block';
+            userListContainer.style.display = 'none';
+        });
+
+        document.getElementById('backToUserListButton').addEventListener('click', function() {
+            editDeleteContainer.style.display = 'none';
+            userListContainer.style.display = 'block';
+        });
+
+        document.getElementById('deleteUserButton').addEventListener('click', function() {
+            const usernameToDelete = document.getElementById('editUsername').value;
+            users = users.filter(user => user.username.toLowerCase() !== usernameToDelete.toLowerCase());
+            alert('Usuário deletado, se existia.');
+            document.getElementById('editUsername').value = '';
+        });
+
+        document.getElementById('saveChangesButton').addEventListener('click', function() {
+            const usernameToEdit = document.getElementById('editUsername').value;
+            const user = users.find(u => u.username.toLowerCase() === usernameToEdit.toLowerCase());
+            if (user) {
+                const newPassword = prompt("Digite a nova senha:");
+                if (newPassword.length > 12 || !/[a-zA-Z]/.test(newPassword) || !/\d/.test(newPassword) || !/[!@#$%^&*]/.test(newPassword)) {
+                    alert('A senha deve conter pelo menos uma letra, um número e um caractere especial.');
+                    return;
+                }
+                user.password = newPassword;
+                alert('Senha alterada com sucesso!');
+            } else {
+                alert('Usuário não encontrado.');
+            }
+            document.getElementById('editUsername').value = '';
+        });
+
+        function appendToResult(value) {
+            document.getElementById('result').value += value;
+        }
+
+        function clearResult() {
+            document.getElementById('result').value = '';
+        }
+
+        function calculateResult() {
+            const resultField = document.getElementById('result');
+            try {
+                const result = eval(resultField.value);
+                resultField.value = result;
+                const currentUser = users.find(u => u.username === prompt("Digite seu nome de usuário:"));
+                if (currentUser) {
+                    currentUser.calculations.push(`${resultField.value} = ${result}`);
+                    updateCalcLog(currentUser);
+                }
+            } catch (error) {
+                alert('Erro na expressão');
+            }
+        }
+
+        function updateCalcLog(user) {
+            calcLog.innerHTML = `<strong>Registros de Cálculos para ${user.username}:</strong><br>${user.calculations.join('<br>')}`;
+        }
+    </script>
+
+
+</body></html>
 
